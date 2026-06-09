@@ -7,7 +7,7 @@
 <meta name="description" content="The Wheel of Death decides who is on call for the sprint. Enter the names. Spin. Accept your fate." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Metal+Mania&family=Cinzel:wght@500;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Pirata+One&family=Metal+Mania&family=Cinzel:wght@500;700&display=swap" rel="stylesheet" />
 <style>
   :root {
     --blood: #8a0303;
@@ -15,6 +15,8 @@
     --ash: #1a1a1a;
     --bone: #d8cfc0;
     --smoke: #6b6b6b;
+    --haze: #3c1d5c;        /* Master of Reality purple */
+    --haze-bright: #7b3fb8;
   }
 
   * { box-sizing: border-box; }
@@ -35,6 +37,7 @@
     position: fixed;
     inset: 0;
     background:
+      radial-gradient(circle at 15% 10%, rgba(60, 29, 92, 0.22), transparent 50%),
       radial-gradient(circle at 50% 20%, rgba(138, 3, 3, 0.18), transparent 55%),
       radial-gradient(circle at 50% 120%, rgba(60, 0, 0, 0.5), transparent 60%),
       #000;
@@ -54,20 +57,51 @@
     to   { transform: translate(4%, 3%) scale(1.15); }
   }
 
+  /* Rain falls in front of everything, lightning above that */
+  #rain {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 40;
+  }
+  #flash {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    opacity: 0;
+    background: radial-gradient(circle at 50% -10%,
+      rgba(255,255,255,0.95),
+      rgba(190,165,255,0.45) 40%,
+      transparent 75%);
+  }
+  #flash.zap { animation: zap 0.7s ease-out; }
+  @keyframes zap {
+    0%   { opacity: 0; }
+    6%   { opacity: 1; }
+    12%  { opacity: 0.15; }
+    18%  { opacity: 0.75; }
+    30%  { opacity: 0.1; }
+    100% { opacity: 0; }
+  }
+
   header {
     text-align: center;
     padding: 2.5rem 1rem 0.5rem;
   }
 
   h1 {
-    font-family: 'Pirata One', 'Metal Mania', serif;
-    font-size: clamp(2.8rem, 9vw, 6rem);
+    font-family: 'UnifrakturCook', 'Pirata One', serif;
+    font-size: clamp(3rem, 10vw, 6.5rem);
     margin: 0;
     line-height: 0.95;
     color: var(--blood-bright);
     text-shadow:
       0 0 8px rgba(196, 13, 13, 0.7),
       0 0 24px rgba(138, 3, 3, 0.55),
+      0 0 60px rgba(123, 63, 184, 0.35),
       0 3px 4px #000;
     letter-spacing: 2px;
     animation: flicker 5s infinite;
@@ -98,6 +132,15 @@
     max-width: 1100px;
     margin: 0 auto;
     padding: 1.5rem 1.25rem 4rem;
+  }
+  main.quake { animation: quake 0.45s ease; }
+  @keyframes quake {
+    0%, 100% { transform: translate(0, 0); }
+    15% { transform: translate(-6px, 3px) rotate(-0.3deg); }
+    30% { transform: translate(5px, -4px) rotate(0.3deg); }
+    45% { transform: translate(-4px, 2px); }
+    60% { transform: translate(4px, -2px); }
+    75% { transform: translate(-2px, 1px); }
   }
 
   /* ---- Controls panel ---- */
@@ -180,8 +223,8 @@
   }
   .ghost-btn:hover { color: var(--bone); border-color: var(--blood); }
 
+  .toggles { margin-top: 1rem; }
   .mute-toggle {
-    margin-top: 1rem;
     font-size: 0.8rem;
     color: var(--smoke);
     display: flex;
@@ -189,6 +232,10 @@
     gap: 0.5rem;
     cursor: pointer;
     user-select: none;
+    margin-top: 0.5rem;
+    text-transform: none;
+    font-weight: 500;
+    letter-spacing: 1px;
   }
   .mute-toggle input { accent-color: var(--blood); }
 
@@ -217,6 +264,12 @@
     z-index: 5;
     filter: drop-shadow(0 0 6px rgba(196,13,13,0.9));
     line-height: 1;
+    transform-origin: 50% 20%;
+  }
+  .pointer.bump { animation: bump 0.1s ease; }
+  @keyframes bump {
+    0%, 100% { transform: translateX(-50%) rotate(0deg); }
+    50% { transform: translateX(-50%) rotate(7deg); }
   }
   .pointer::after {
     content: "";
@@ -230,7 +283,7 @@
     filter: drop-shadow(0 0 4px rgba(196,13,13,0.8));
   }
 
-  canvas {
+  canvas#wheel {
     width: 100%;
     height: 100%;
     border-radius: 50%;
@@ -238,6 +291,7 @@
       0 0 0 8px #111,
       0 0 0 12px var(--blood),
       0 0 40px rgba(196,13,13,0.5),
+      0 0 90px rgba(60,29,92,0.45),
       0 0 80px rgba(0,0,0,0.9);
     background: #000;
   }
@@ -261,6 +315,14 @@
     letter-spacing: 2px;
     margin-top: 0.25rem;
   }
+  .verdict .strike {
+    margin-top: 0.9rem;
+    font-size: 0.95rem;
+    background: #181818;
+    color: var(--smoke);
+    border: 1px solid #333;
+  }
+  .verdict .strike:hover { color: var(--bone); border-color: var(--blood); }
   @keyframes rise {
     from { opacity: 0; transform: translateY(14px) scale(0.9); }
     to   { opacity: 1; transform: translateY(0) scale(1); }
@@ -278,12 +340,15 @@
 </style>
 </head>
 <body>
+  <canvas id="rain" aria-hidden="true"></canvas>
+  <div id="flash" aria-hidden="true"></div>
+
   <header>
     <h1>Wheel&nbsp;of&nbsp;Death</h1>
-    <div class="subtitle">— who shall be on call this sprint —</div>
+    <div class="subtitle">what is this that stands before me?</div>
   </header>
 
-  <main>
+  <main id="main">
     <section class="panel" aria-label="Controls">
       <label for="names">The Names of the Damned</label>
       <textarea id="names" spellcheck="false" placeholder="Ozzy&#10;Tony&#10;Geezer&#10;Bill"></textarea>
@@ -294,15 +359,21 @@
         <button class="ghost-btn" id="shuffle" title="Shuffle the order">⚰ Shuffle</button>
       </div>
 
-      <label class="mute-toggle">
-        <input type="checkbox" id="sound" checked />
-        Toll the bell
-      </label>
+      <div class="toggles">
+        <label class="mute-toggle">
+          <input type="checkbox" id="sound" checked />
+          Toll the bell &amp; play the riff
+        </label>
+        <label class="mute-toggle">
+          <input type="checkbox" id="storm" checked />
+          Summon the storm
+        </label>
+      </div>
     </section>
 
     <section class="stage">
       <div class="wheel-wrap">
-        <div class="pointer" aria-hidden="true">💀</div>
+        <div class="pointer" id="pointer" aria-hidden="true">💀</div>
         <canvas id="wheel" width="900" height="900"></canvas>
       </div>
       <div class="verdict" aria-live="polite" id="verdict"></div>
@@ -323,16 +394,20 @@
   const spinBtn = document.getElementById("spin");
   const shuffleBtn = document.getElementById("shuffle");
   const soundToggle = document.getElementById("sound");
+  const stormToggle = document.getElementById("storm");
   const verdict = document.getElementById("verdict");
+  const pointerEl = document.getElementById("pointer");
+  const flashEl = document.getElementById("flash");
+  const mainEl = document.getElementById("main");
 
   const SIZE = canvas.width;          // logical pixel size (square)
   const CENTER = SIZE / 2;
   const RADIUS = CENTER - 10;
 
-  // Black Sabbath palette: ash, blood, char.
+  // Black Sabbath palette: ash, blood, char, a hint of haze.
   const COLORS = [
     "#7a0202", "#141414", "#a40909", "#202020",
-    "#5c0101", "#0d0d0d", "#8a0303", "#2a2a2a"
+    "#5c0101", "#0d0d0d", "#8a0303", "#2a1438"
   ];
 
   let names = [];
@@ -405,6 +480,16 @@
       ctx.restore();
     }
 
+    // Candlelight sheen over the wedges
+    const sheen = ctx.createRadialGradient(0, -RADIUS * 0.5, RADIUS * 0.1, 0, 0, RADIUS);
+    sheen.addColorStop(0, "rgba(255, 220, 160, 0.07)");
+    sheen.addColorStop(0.6, "rgba(0,0,0,0)");
+    sheen.addColorStop(1, "rgba(0,0,0,0.45)");
+    ctx.beginPath();
+    ctx.arc(0, 0, RADIUS, 0, Math.PI * 2);
+    ctx.fillStyle = sheen;
+    ctx.fill();
+
     // Hub
     ctx.beginPath();
     ctx.arc(0, 0, RADIUS * 0.12, 0, Math.PI * 2);
@@ -425,6 +510,7 @@
   // ---- Determine winner under the pointer (top = -90°) ----
   function winnerIndex() {
     const n = names.length;
+    if (n === 0) return -1;
     const arc = (Math.PI * 2) / n;
     // Pointer sits at the top, which is angle -PI/2 in canvas coords.
     // A segment i covers [i*arc, (i+1)*arc) after applying `rotation`.
@@ -456,6 +542,7 @@
     const t0 = performance.now();
 
     tickBell(); // opening toll
+    let lastIdx = winnerIndex();
 
     function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
 
@@ -464,31 +551,98 @@
       const t = Math.min(elapsed / duration, 1);
       rotation = start + (target - start) * easeOutQuart(t);
       draw();
+
+      // Click as each soul passes beneath the skull.
+      const idx = winnerIndex();
+      if (idx !== lastIdx) {
+        lastIdx = idx;
+        playTick();
+        bumpPointer();
+      }
+
       if (t < 1) {
         requestAnimationFrame(frame);
+      } else if (Math.random() < 0.5) {
+        cruelTwist();
       } else {
-        spinning = false;
-        spinBtn.disabled = false;
-        announce();
+        land();
       }
     }
+
+    function land() {
+      spinning = false;
+      spinBtn.disabled = false;
+      announce();
+    }
+
+    // Half the time the wheel is not done with you: it names a soul,
+    // hesitates, then creeps one wedge further.
+    function cruelTwist() {
+      flashVerdict(names[winnerIndex()] + "…", "…or is it?");
+      const arc = (Math.PI * 2) / names.length;
+      const from = rotation;
+      const to = from + arc;
+      setTimeout(() => {
+        verdict.innerHTML = "";
+        const tw0 = performance.now();
+        const twDur = 700;
+        function lurch(now) {
+          const t = Math.min((now - tw0) / twDur, 1);
+          rotation = from + (to - from) * easeOutQuart(t);
+          draw();
+          const idx = winnerIndex();
+          if (idx !== lastIdx) {
+            lastIdx = idx;
+            playTick();
+            bumpPointer();
+          }
+          if (t < 1) requestAnimationFrame(lurch);
+          else land();
+        }
+        requestAnimationFrame(lurch);
+      }, 1200);
+    }
+
     requestAnimationFrame(frame);
   }
 
   function announce() {
     const chosen = names[winnerIndex()];
     const taglines = [
-      "has been chosen to bear the pager.",
+      "what is this that stands before me?",
+      "has become the Iron Man.",
+      "oh no, no — please, God, help them.",
+      "the bell tolls for thee.",
       "shall answer the midnight call.",
-      "is bound to the on-call rotation.",
-      "your fate is sealed.",
-      "the wheel has spoken."
+      "is it the end, my friend?",
+      "the wheel has spoken. Satan laughing spreads his wings.",
+      "generals gathered in their masses have chosen."
     ];
     const tag = taglines[Math.floor(Math.random() * taglines.length)];
     verdict.innerHTML =
       '<p class="chosen">' + escapeHtml(chosen) + "</p>" +
-      '<p class="tagline">' + tag + "</p>";
+      '<p class="tagline">' + tag + "</p>" +
+      '<button class="strike" id="strike">⚰ Strike ' + escapeHtml(chosen) + " from the list</button>";
+
+    document.getElementById("strike").addEventListener("click", () => {
+      const list = parseNames();
+      const at = list.indexOf(chosen);
+      if (at !== -1) list.splice(at, 1);
+      namesInput.value = list.join("\n");
+      saveNames();
+      names = list;
+      rotation = 0;
+      verdict.innerHTML = "";
+      draw();
+    });
+
+    // The sky splits, the bell tolls, the riff descends.
+    lightning(true);
+    mainEl.classList.remove("quake");
+    void mainEl.offsetWidth;
+    mainEl.classList.add("quake");
     tollFinal();
+    playRiff();
   }
 
   function flashVerdict(main, tag) {
@@ -503,7 +657,7 @@
     }[c]));
   }
 
-  // ---- Audio: a tolling bell (Black Sabbath's opening) via WebAudio ----
+  // ---- Audio ----
   let audioCtx = null;
   function ac() {
     if (!audioCtx) {
@@ -512,7 +666,14 @@
     }
     return audioCtx;
   }
+  function audioReady() {
+    const c = ac();
+    if (!c) return null;
+    if (c.state === "suspended") c.resume();
+    return c;
+  }
 
+  // -- The bell (Black Sabbath's opening) --
   function bellStrike(time, baseFreq, gainVal) {
     const c = ac();
     if (!c) return;
@@ -540,22 +701,262 @@
 
   function tickBell() {
     if (!soundToggle.checked) return;
-    const c = ac();
+    const c = audioReady();
     if (!c) return;
-    if (c.state === "suspended") c.resume();
     bellStrike(c.currentTime, 220, 0.5);
   }
 
   function tollFinal() {
     if (!soundToggle.checked) return;
-    const c = ac();
+    const c = audioReady();
     if (!c) return;
-    if (c.state === "suspended") c.resume();
     // Doom: three slow tolls.
     bellStrike(c.currentTime, 160, 0.6);
     bellStrike(c.currentTime + 0.9, 160, 0.6);
     bellStrike(c.currentTime + 1.8, 110, 0.7);
   }
+
+  // -- Wheel tick as a segment passes the skull --
+  function playTick() {
+    if (!soundToggle.checked) return;
+    const c = ac();
+    if (!c || c.state !== "running") return;
+    const t = c.currentTime;
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.type = "square";
+    osc.frequency.value = 650 + Math.random() * 250;
+    g.gain.setValueAtTime(0.07, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
+    osc.connect(g);
+    g.connect(c.destination);
+    osc.start(t);
+    osc.stop(t + 0.05);
+  }
+
+  function bumpPointer() {
+    pointerEl.classList.remove("bump");
+    void pointerEl.offsetWidth;
+    pointerEl.classList.add("bump");
+  }
+
+  // -- The Riff: G, G an octave up, then the tritone. The devil's interval. --
+  function makeDistortion(c) {
+    const ws = c.createWaveShaper();
+    const n = 1024;
+    const curve = new Float32Array(n);
+    const k = 80;
+    for (let i = 0; i < n; i++) {
+      const x = (i * 2) / n - 1;
+      curve[i] = ((1 + k) * x) / (1 + k * Math.abs(x));
+    }
+    ws.curve = curve;
+    ws.oversample = "4x";
+    return ws;
+  }
+
+  function doomChord(c, dest, time, freq, dur, vol) {
+    const dist = makeDistortion(c);
+    const lp = c.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = 1600;
+    const master = c.createGain();
+    master.gain.setValueAtTime(0.0001, time);
+    master.gain.exponentialRampToValueAtTime(vol, time + 0.02);
+    master.gain.setValueAtTime(vol, time + dur - 0.2);
+    master.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+    dist.connect(lp);
+    lp.connect(master);
+    master.connect(dest);
+
+    // Root + fifth + octave, each doubled slightly detuned: a power chord.
+    [1, 1.5, 2].forEach(mult => {
+      [-4, 4].forEach(cents => {
+        const osc = c.createOscillator();
+        osc.type = "sawtooth";
+        osc.frequency.value = freq * mult;
+        osc.detune.value = cents;
+        const g = c.createGain();
+        g.gain.value = 0.3 / mult;
+        osc.connect(g);
+        g.connect(dist);
+        osc.start(time);
+        osc.stop(time + dur + 0.05);
+      });
+    });
+  }
+
+  function trillNote(c, dest, time, dur, vol) {
+    // The sustained C# with the trill, as the heavens demand.
+    const dist = makeDistortion(c);
+    const lp = c.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = 1600;
+    const master = c.createGain();
+    master.gain.setValueAtTime(0.0001, time);
+    master.gain.exponentialRampToValueAtTime(vol, time + 0.02);
+    master.gain.setValueAtTime(vol, time + dur - 0.4);
+    master.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+    dist.connect(lp);
+    lp.connect(master);
+    master.connect(dest);
+
+    const CSHARP = 138.59, D = 146.83;
+    [-4, 4].forEach(cents => {
+      [1, 2].forEach(mult => {
+        const osc = c.createOscillator();
+        osc.type = "sawtooth";
+        osc.detune.value = cents;
+        const g = c.createGain();
+        g.gain.value = 0.35 / mult;
+        // Hold the tritone, then trill.
+        osc.frequency.setValueAtTime(CSHARP * mult, time);
+        for (let tt = time + dur * 0.45; tt < time + dur - 0.1; tt += 0.22) {
+          osc.frequency.setValueAtTime(D * mult, tt);
+          osc.frequency.setValueAtTime(CSHARP * mult, tt + 0.11);
+        }
+        osc.connect(g);
+        g.connect(dist);
+        osc.start(time);
+        osc.stop(time + dur + 0.05);
+      });
+    });
+  }
+
+  function playRiff() {
+    if (!soundToggle.checked) return;
+    const c = audioReady();
+    if (!c) return;
+    const t = c.currentTime + 0.1;
+    doomChord(c, c.destination, t, 98.0, 1.15, 0.22);        // G2
+    doomChord(c, c.destination, t + 1.25, 196.0, 1.15, 0.2); // G3
+    trillNote(c, c.destination, t + 2.5, 2.2, 0.22);         // C#3, trilled
+  }
+
+  // -- The storm: rain ambience + thunder --
+  let rainNode = null;
+  function startRainSound() {
+    const c = ac();
+    if (!c || rainNode || c.state !== "running") return;
+    const dur = 3;
+    const buf = c.createBuffer(1, c.sampleRate * dur, c.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    const src = c.createBufferSource();
+    src.buffer = buf;
+    src.loop = true;
+    const bp = c.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.frequency.value = 1400;
+    bp.Q.value = 0.4;
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.035, c.currentTime + 2);
+    src.connect(bp);
+    bp.connect(g);
+    g.connect(c.destination);
+    src.start();
+    rainNode = { src, g };
+  }
+  function stopRainSound() {
+    if (!rainNode) return;
+    const c = ac();
+    rainNode.g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + 0.6);
+    rainNode.src.stop(c.currentTime + 0.7);
+    rainNode = null;
+  }
+
+  function thunder(delay, intensity) {
+    const c = ac();
+    if (!c || c.state !== "running") return;
+    const time = c.currentTime + delay;
+    const dur = 2.5 + Math.random() * 1.5;
+    const buf = c.createBuffer(1, c.sampleRate * dur, c.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) {
+      d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 2);
+    }
+    const src = c.createBufferSource();
+    src.buffer = buf;
+    const lp = c.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.setValueAtTime(260 + Math.random() * 160, time);
+    lp.frequency.exponentialRampToValueAtTime(55, time + dur);
+    const g = c.createGain();
+    g.gain.setValueAtTime(intensity, time);
+    g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+    src.connect(lp);
+    lp.connect(g);
+    g.connect(c.destination);
+    src.start(time);
+  }
+
+  function lightning(loud) {
+    flashEl.classList.remove("zap");
+    void flashEl.offsetWidth;
+    flashEl.classList.add("zap");
+    if (stormToggle.checked && soundToggle.checked) {
+      thunder(0.15 + Math.random() * 0.4, loud ? 0.65 : 0.35 + Math.random() * 0.2);
+    }
+  }
+
+  function scheduleStorm() {
+    setTimeout(() => {
+      if (stormToggle.checked) lightning(false);
+      scheduleStorm();
+    }, 8000 + Math.random() * 14000);
+  }
+
+  // ---- Rain (visual) ----
+  const rainCanvas = document.getElementById("rain");
+  const rctx = rainCanvas.getContext("2d");
+  let drops = [];
+
+  function resizeRain() {
+    rainCanvas.width = window.innerWidth;
+    rainCanvas.height = window.innerHeight;
+  }
+  window.addEventListener("resize", resizeRain);
+  resizeRain();
+
+  function seedDrops() {
+    drops = [];
+    const count = Math.floor(window.innerWidth / 7);
+    for (let i = 0; i < count; i++) {
+      drops.push({
+        x: Math.random() * rainCanvas.width,
+        y: Math.random() * rainCanvas.height,
+        len: 14 + Math.random() * 24,
+        speed: 9 + Math.random() * 11,
+        alpha: 0.25 + Math.random() * 0.35,
+        width: 1 + Math.random()
+      });
+    }
+  }
+  seedDrops();
+  window.addEventListener("resize", seedDrops);
+
+  function rainFrame() {
+    rctx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
+    if (stormToggle.checked) {
+      for (const dr of drops) {
+        rctx.lineWidth = dr.width;
+        rctx.strokeStyle = "rgba(200, 212, 240," + dr.alpha + ")";
+        rctx.beginPath();
+        rctx.moveTo(dr.x, dr.y);
+        rctx.lineTo(dr.x + dr.len * 0.18, dr.y + dr.len);
+        rctx.stroke();
+        dr.y += dr.speed;
+        dr.x += dr.speed * 0.18;
+        if (dr.y > rainCanvas.height) {
+          dr.y = -dr.len;
+          dr.x = Math.random() * rainCanvas.width;
+        }
+      }
+    }
+    requestAnimationFrame(rainFrame);
+  }
+  requestAnimationFrame(rainFrame);
 
   // ---- Shuffle ----
   function shuffle() {
@@ -590,6 +991,27 @@
     draw();
   });
 
+  // Browsers gate audio behind a gesture; awaken the storm on first touch.
+  function awaken() {
+    const c = audioReady();
+    if (c && stormToggle.checked && soundToggle.checked) {
+      // resume() may settle async; try now and shortly after.
+      startRainSound();
+      setTimeout(startRainSound, 300);
+    }
+  }
+  window.addEventListener("pointerdown", awaken);
+  window.addEventListener("keydown", awaken);
+
+  stormToggle.addEventListener("change", () => {
+    if (stormToggle.checked && soundToggle.checked) awaken();
+    else stopRainSound();
+  });
+  soundToggle.addEventListener("change", () => {
+    if (soundToggle.checked && stormToggle.checked) awaken();
+    else stopRainSound();
+  });
+
   // Seed
   loadNames();
   if (!namesInput.value.trim()) {
@@ -597,6 +1019,7 @@
   }
   names = parseNames();
   draw();
+  scheduleStorm();
 })();
 </script>
 </body>
