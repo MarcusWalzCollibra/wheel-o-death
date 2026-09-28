@@ -1,17 +1,21 @@
 # 💀 Wheel of Death
 
-A doom-laden, Black Sabbath–styled spinning wheel that decides **who is on call for the sprint**.
+**World 8-4: The On-Call Castle.** A spooky, Super Mario–style castle-and-battleship level that decides **who is on call for the sprint**.
 
-Enter the names of the damned, spin the wheel, and accept your fate. A bell tolls when the wheel chooses.
+The Koopa King's battleship has docked at your production castle. Enter the names of the heroes, spin the helm, and accept your fate. No warp pipes. No continues.
 
 ## Features
 
-- 🎡 Canvas spinning wheel with weighted easing and a satisfying slow-down
-- 🩸 Black Sabbath aesthetic — blood red, ash black, gothic type, flickering glow and drifting fog
-- 🔔 WebAudio tolling bell (a nod to the opening of *Black Sabbath*) — toggleable
+- 🎬 Intro: a "WORLD 8-4" title card, the battleship sailing in over the castle, a typewriter letter from the Koopa King, and an iris wipe into the level (skippable with **Skip** or `Esc`)
+- 🎡 The wheel is a battleship helm, with a Boo watching the top, weighted easing and a nice slow-down
+- 🗿 Cruel twist: half the time a Thwomp slams down and knocks the wheel one more name along
+- 🏰 Castle brick walls, flickering torches, rising lava, Podoboos jumping out of it, shy Boos that hide their faces when your cursor gets close, and Bullet Bills fired across the screen (toggleable)
+- 🪙 A coin shower and a HUD (heroes, coins, world, time) in the classic style
+- 🎵 Original synthesized chiptune (castle music, jump, coin, fanfare and Thwomp thud) via WebAudio. Nothing is sampled, and sound effects and music have separate toggles
+- 🔥 Toss the chosen hero into the lava to take them off the list
 - ⚰️ Shuffle the order before the ritual
 - 💾 Remembers your list of names between visits (localStorage)
-- 📱 Responsive, no build step, no dependencies — a single `index.html`
+- 📱 Responsive, respects `prefers-reduced-motion`, no build step and no dependencies: it's a single `index.html`
 
 ## Run locally
 
