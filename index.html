@@ -671,7 +671,7 @@
   <main id="main">
     <section class="panel" aria-label="Controls">
       <label for="names">HEROES WHO ENTERED THE CASTLE</label>
-      <textarea id="names" spellcheck="false" placeholder="Mario&#10;Luigi&#10;Peach&#10;Toad"></textarea>
+      <textarea id="names" spellcheck="false" placeholder="Mario&#10;Luigi&#10;Wario&#10;Waluigi&#10;Dr. Mario&#10;Fire Mario&#10;Metal Mario&#10;Baby Mario"></textarea>
       <p class="hint">ONE NAME PER LINE (OR SEPARATED BY COMMAS).</p>
 
       <div class="btn-row">
@@ -852,9 +852,16 @@
       ctx.rotate(start + arc / 2);
       ctx.textAlign = "right";
       ctx.textBaseline = "middle";
-      const fontSize = Math.max(14, Math.min(28, 220 / Math.max(names.length, 6)));
-      ctx.font = `${fontSize}px 'Press Start 2P', monospace`;
       const label = names[i].length > 12 ? names[i].slice(0, 11) + "…" : names[i];
+      // Shrink long names so they stop short of the hub.
+      const room = RADIUS - 26 - RADIUS * 0.16 - 20;
+      let fontSize = Math.max(14, Math.min(28, 220 / Math.max(names.length, 6)));
+      ctx.font = `${fontSize}px 'Press Start 2P', monospace`;
+      const width = ctx.measureText(label).width;
+      if (width > room) {
+        fontSize = Math.max(10, Math.floor(fontSize * room / width));
+        ctx.font = `${fontSize}px 'Press Start 2P', monospace`;
+      }
       ctx.lineWidth = 6;
       ctx.lineJoin = "round";
       ctx.strokeStyle = "#000";
@@ -1669,7 +1676,7 @@
   // Seed
   loadNames();
   if (!namesInput.value.trim()) {
-    namesInput.value = "Mario\nLuigi\nPeach\nToad";
+    namesInput.value = "Mario\nLuigi\nWario\nWaluigi\nDr. Mario\nFire Mario\nMetal Mario\nBaby Mario";
   }
   names = parseNames();
   updateHud();
